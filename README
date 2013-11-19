@@ -1,0 +1,5 @@
+
+This is a OpenWRT package. To compile, please download OpenWRT
+buildroot and copy this directory to 'packages'. Then, select icee (M)
+on menuconfig.
+
