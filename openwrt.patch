@@ -1,0 +1,35 @@
+diff -rupbN original/cppe/Makefile modified/cppe/Makefile
+--- original/cppe/Makefile	2008-12-18 08:17:40.000000000 +0000
++++ modified/cppe/Makefile	2013-11-20 09:14:42.808048110 +0000
+@@ -11,7 +11,7 @@ top_srcdir	= .
+ 
+ include $(top_srcdir)/config/Make.rules
+ 
+-SUBDIRS		= src include test demo
++SUBDIRS		= src include
+ 
+ INSTALL_SUBDIRS = $(install_bindir) $(install_libdir) $(install_includedir)
+ 
+diff -rupbN original/cppe/config/Make.rules modified/cppe/config/Make.rules
+--- original/cppe/config/Make.rules	2008-12-18 08:17:40.000000000 +0000
++++ modified/cppe/config/Make.rules	2013-11-20 09:15:05.824048305 +0000
+@@ -21,7 +21,7 @@ prefix			= /opt/IceE-$(VERSION)
+ # If neither is set, IceE is built with debug information.
+ #
+ 
+-#OPTIMIZE_SIZE		= yes
++OPTIMIZE_SIZE		= yes
+ #OPTIMIZE_SPEED		= yes
+ 
+ #
+diff -rupbN original/cppe/include/IceE/Time.h modified/cppe/include/IceE/Time.h
+--- original/cppe/include/IceE/Time.h	2008-12-18 08:17:40.000000000 +0000
++++ modified/cppe/include/IceE/Time.h	2013-11-20 09:14:42.808048110 +0000
+@@ -10,6 +10,7 @@
+ #ifndef ICEE_TIME_H
+ #define ICEE_TIME_H
+ 
++#include <sys/time.h>
+ #include <IceE/Config.h>
+ #include <ostream>
+ 

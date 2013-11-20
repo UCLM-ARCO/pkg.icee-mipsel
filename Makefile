@@ -16,14 +16,14 @@ PKG_SRC_URL := http://zeroc.com/download/IceE/1.3/$(PKG_SRC)
 include $(INCLUDE_DIR)/package.mk
 
 define Package/icee/Default
-  URL        := http://www.zeroc.com/icee/index.html
-  MAINTAINER := Oscar Acena <oscar.acena@gmail.com>
+        URL        := http://www.zeroc.com/icee/index.html
+        MAINTAINER := Oscar Acena <oscar.acena@gmail.com>
 endef
 
 define Package/icee
-	SECTION  := net
-	CATEGORY := Network
-	TITLE    := ZeroC Ice for Embedded Devices
+	SECTION    := net
+	CATEGORY   := Network
+	TITLE      := ZeroC Ice for Embedded Devices
 endef
 
 define Package/icee/description
@@ -35,16 +35,24 @@ endef
 
 define Build/Prepare
 	[ ! -d $(PKG_SRC_DIR) ] || rm -rf $(PKG_SRC_DIR)
-	wget $(PKG_SRC_URL) -O $(PKG_SRC)
+	[ -f $(PKG_SRC) ] || wget $(PKG_SRC_URL) -O $(PKG_SRC)
 	mkdir -p $(PKG_SRC_DIR)
 	tar zxvf $(PKG_SRC) --strip-components 1 -C $(PKG_SRC_DIR)
 endef
 
 define Build/Configure
+	patch -d $(PKG_SRC_DIR) -p1 < openwrt.patch
 endef
 
 define Build/Compile
-	$(MAKE) -C $(PKG_SRC_DIR) configure all
+	$(MAKE) -C $(PKG_SRC_DIR) configure \
+	    HAS_ROUTER=no \
+	    HAS_LOCATOR=no \
+	    HAS_BATCH=no \
+	    HAS_WSTRING=no \
+	    HAS_OPAQUE_ENDPOINTS=yes \
+	    HAS_AMI=no
+	export CXX=$(TARGET_CXX); $(MAKE) -C $(PKG_SRC_DIR) all
 endef
 
 define Package/icee/install
@@ -56,3 +64,4 @@ endef
 
 
 $(eval $(call BuildPackage,icee))
+
