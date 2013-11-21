@@ -5,7 +5,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME    := icee
 PKG_REV     := 1.3
 PKG_VERSION := $(PKG_REV)
-PKG_RELEASE := 1.3
+PKG_RELEASE := 1.3.0
 
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 
@@ -24,6 +24,7 @@ define Package/icee
 	SECTION    := net
 	CATEGORY   := Network
 	TITLE      := ZeroC Ice for Embedded Devices
+	DEPENDS    := +libpthread +uclibcxx
 endef
 
 define Package/icee/description
@@ -52,11 +53,14 @@ define Build/Compile
 	    HAS_WSTRING=no \
 	    HAS_OPAQUE_ENDPOINTS=yes \
 	    HAS_AMI=no
-	export CXX=$(TARGET_CXX); $(MAKE) -C $(PKG_SRC_DIR) all
+
+	$(MAKE) -C $(PKG_SRC_DIR) \
+	    CXX=$(TARGET_CXX) \
+	    LDPLATFORMFLAGS="-nodefaultlibs -lgcc -lc -luClibc++"
 endef
 
 define Package/icee/install
-	$(INSTALL_DATA) ./libIceE.1.2.so $(1)/lib
+	$(INSTALL_DATA) $(PKG_SRC_DIR)/cppe/lib/libIceEC.so.1.3.0 $(1)/lib
 endef
 
 define Package/icee/postinst
