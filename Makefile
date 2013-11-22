@@ -5,7 +5,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME    := icee
 PKG_REV     := 1.3
 PKG_VERSION := $(PKG_REV)
-PKG_RELEASE := 1.3.0
+PKG_RELEASE := 0
 
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 
@@ -20,13 +20,6 @@ define Package/icee/Default
         MAINTAINER := Oscar Acena <oscar.acena@gmail.com>
 endef
 
-define Package/icee
-	SECTION    := net
-	CATEGORY   := Network
-	TITLE      := ZeroC Ice for Embedded Devices
-	DEPENDS    := +libpthread +uclibcxx
-endef
-
 define Package/icee/description
         Ice-E ("Embedded Ice") is a compact communications engine designed
         specifically for use in environments where resources are scarce,
@@ -34,18 +27,31 @@ define Package/icee/description
         (PDAs), and embedded controllers.
 endef
 
+define Package/icee-server
+	$(call Package/dropbear/Default)
+	SECTION    := libs
+	CATEGORY   := Libraries
+	TITLE      := ZeroC Ice for Embedded Devices (server version)
+	DEPENDS    := +libpthread +uclibcxx
+endef
+
+define Package/icee-client
+	$(call Package/dropbear/Default)
+	SECTION    := libs
+	CATEGORY   := Libraries
+	TITLE      := ZeroC Ice for Embedded Devices (client version)
+	DEPENDS    := +libpthread +uclibcxx
+endef
+
 define Build/Prepare
 	[ ! -d $(PKG_SRC_DIR) ] || rm -rf $(PKG_SRC_DIR)
 	[ -f $(PKG_SRC) ] || wget $(PKG_SRC_URL) -O $(PKG_SRC)
 	mkdir -p $(PKG_SRC_DIR)
 	tar zxvf $(PKG_SRC) --strip-components 1 -C $(PKG_SRC_DIR)
-endef
-
-define Build/Configure
 	patch -d $(PKG_SRC_DIR) -p1 < openwrt.patch
 endef
 
-define Build/Compile
+define Build/Configure
 	$(MAKE) -C $(PKG_SRC_DIR) configure \
 	    HAS_ROUTER=no \
 	    HAS_LOCATOR=no \
@@ -53,19 +59,25 @@ define Build/Compile
 	    HAS_WSTRING=no \
 	    HAS_OPAQUE_ENDPOINTS=yes \
 	    HAS_AMI=no
+endef
 
+define Build/Compile
 	$(MAKE) -C $(PKG_SRC_DIR) \
 	    CXX=$(TARGET_CXX) \
 	    LDPLATFORMFLAGS="-nodefaultlibs -lgcc -lc -luClibc++"
 endef
 
-define Package/icee/install
-	$(INSTALL_DATA) $(PKG_SRC_DIR)/cppe/lib/libIceEC.so.1.3.0 $(1)/lib
+define Package/icee-server/install
+	$(INSTALL_DIR) $(1)/lib
+	$(CP) -d $(PKG_SRC_DIR)/cppe/lib/libIceE.so* $(1)/lib/
 endef
 
-define Package/icee/postinst
+define Package/icee-client/install
+	$(INSTALL_DIR) $(1)/lib
+	$(CP) -d $(PKG_SRC_DIR)/cppe/lib/libIceEC.so* $(1)/lib/
 endef
 
 
-$(eval $(call BuildPackage,icee))
+$(eval $(call BuildPackage,icee-client))
+$(eval $(call BuildPackage,icee-server))
 
